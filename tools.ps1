@@ -42,5 +42,5 @@ foreach ($file in $fileArray) {
     $allContents += "`n" + $content
 }
 
-$allContents
+iex $allContents
 
