@@ -45,3 +45,11 @@ jobs:
           tag: ${{ env.NEW_VERSION }}
           generateReleaseNotes: true
           token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload unarchived files to GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            $(find . -type f)  # This will include all files in the repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
