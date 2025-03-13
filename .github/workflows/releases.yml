@@ -58,5 +58,6 @@ jobs:
           tag_name: ${{ env.NEW_VERSION }}
           files: |
             tools.ps1
+            findlatest.ps1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
