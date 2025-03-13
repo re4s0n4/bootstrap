@@ -1,7 +1,7 @@
 # Define the GitHub repository and the asset you want to download
 $repoOwner = "re4s0n4"
 $repoName = "bootstrap"
-$assets = "/sources"
+$assets = "sources"
 $assetName = "tools.ps1"
 
 # Fetch the latest release information from the GitHub API
@@ -23,7 +23,7 @@ foreach ($file in $sourceFiles) {
     # Create a file object with the name and the corresponding download URL
     $fileObject = [PSCustomObject]@{
         FileName     = $file.name
-        DownloadURL  = "https://raw.githubusercontent.com/re4s0n4/bootstrap/main/sources/$($file.name)"
+        DownloadURL  = "https://raw.githubusercontent.com/re4s0n4/bootstrap/main/$($assets)/$($file.name)"
     }
 
     # Add the file object to the array
@@ -44,24 +44,3 @@ foreach ($file in $fileArray) {
 
 $allContents
 
-
-
-
-
-
-
-
-
-# Check if the asset URL is found
-if ($downloadUrl) {
-    Write-Host "Found $assetName at: $downloadUrl"
-    
-    # Download the file contents directly and pass them to the pipeline
-    $toolsContent = Invoke-WebRequest -Uri $downloadUrl
-
-    # Output the content to the pipeline
-    $toolsContent.Content | Invoke-Expression
-    Write-Host "$assetName has been executed successfully!"
-} else {
-    Write-Host "Error: Could not find the asset '$assetName' in the latest release."
-}
