@@ -2,7 +2,6 @@
 $repoOwner = "re4s0n4"
 $repoName = "bootstrap"
 $assets = "sources"
-$assetName = "tools.ps1"
 
 # Fetch the latest release information from the GitHub API
 # $githubApiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/latest"
@@ -16,7 +15,6 @@ $sourceFiles = Invoke-RestMethod -Uri $repoContentsUrl -Headers @{ "User-Agent" 
 
 # Initialize an array to store file data
 $fileArray = @()
-
 
 # Loop through each file in the 'sources' folder
 foreach ($file in $sourceFiles) {
@@ -42,5 +40,4 @@ foreach ($file in $fileArray) {
     $allContents += "`n" + $content
 }
 
-iex $allContents
-
+Invoke-Expression $allContents
