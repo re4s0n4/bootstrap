@@ -23,16 +23,26 @@ foreach ($file in $sourceFiles) {
     # Create a file object with the name and the corresponding download URL
     $fileObject = [PSCustomObject]@{
         FileName     = $file.name
-        DownloadURL  = "https://github.com/$repoOwner/$repoName/releases/download/latest/$($file.name)"
+        DownloadURL  = "https://raw.githubusercontent.com/re4s0n4/bootstrap/main/sources/$($file.name)"
     }
 
     # Add the file object to the array
     $fileArray += $fileObject
 }
 
-# Output the array with file names and download URLs
-$fileArray
+# Initialize a variable to hold all file contents
+$allContents = ""
 
+# Loop through each file in the list
+foreach ($file in $fileArray) {
+    # Download the raw content from the file's URL
+    $content = Invoke-RestMethod -Uri $file.DownloadURL -Headers @{ "User-Agent" = "PowerShell" }
+
+    # Append the content to the $allContents variable
+    $allContents += "`n" + $content
+}
+
+$allContents
 
 
 
