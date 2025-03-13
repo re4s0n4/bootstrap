@@ -46,11 +46,17 @@ jobs:
           generateReleaseNotes: true
           token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List files found
+        run: |
+          echo "Listing all files found in the repository:"
+          find . -type f
+
+
       - name: Upload unarchived files to GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ env.NEW_VERSION }}
           files: |
-            $(find . -type f)  # This will include all files in the repo
+            $(find . -type f -not -path '*/.git/*' -not -path '*/node_modules/*')  # This excludes .git and node_modules
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
