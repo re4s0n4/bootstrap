@@ -1,40 +1,26 @@
-function Test-RestartPending {
-    [CmdletBinding()]
-    param ()
+# Define the GitHub repository and the asset you want to download
+$repoOwner = "re4s0n4"
+$repoName = "bootstrap"
+$assets = "/sources"
+$assetName = "tools.ps1"
 
-    $restartPending = $false
+# Fetch the latest release information from the GitHub API
+$githubApiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/latest"
+$response = Invoke-RestMethod -Uri $githubApiUrl -Headers @{ "User-Agent" = "PowerShell" }
 
-    # Check Windows Update Restart Pending
-    $windowsUpdateKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update'
-    if (Test-Path $windowsUpdateKey) {
-        $wuRebootRequired = Get-ItemProperty -Path $windowsUpdateKey -Name RebootRequired -ErrorAction SilentlyContinue
-        if ($wuRebootRequired) { $restartPending = $true }
-    }
+# Find the asset download URL for tools.ps1
+$downloadUrl = $response.assets | Where-Object { $_.name -eq $assetName } | Select-Object -ExpandProperty browser_download_url
 
-    # Check Component-Based Servicing (CBS) Restart Pending
-    $cbsKey = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending'
-    if (Test-Path $cbsKey) { $restartPending = $true }
+# Check if the asset URL is found
+if ($downloadUrl) {
+    Write-Host "Found $assetName at: $downloadUrl"
+    
+    # Download the file contents directly and pass them to the pipeline
+    $toolsContent = Invoke-WebRequest -Uri $downloadUrl
 
-    # Check PendingFileRenameOperations
-    $pendingFileRenameKey = 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager'
-    if (Test-Path $pendingFileRenameKey) {
-        $pendingFileRename = Get-ItemProperty -Path $pendingFileRenameKey -Name PendingFileRenameOperations -ErrorAction SilentlyContinue
-        if ($pendingFileRename) { $restartPending = $true }
-    }
-
-    # Check if a domain join requires a restart
-    $domainJoinKey = 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon'
-    if (Test-Path $domainJoinKey) {
-        $joinStatus = Get-ItemProperty -Path $domainJoinKey -Name JoinDomain -ErrorAction SilentlyContinue
-        if ($joinStatus) { $restartPending = $true }
-    }
-
-    return $restartPending
+    # Output the content to the pipeline
+    $toolsContent.Content | Invoke-Expression
+    Write-Host "$assetName has been executed successfully!"
+} else {
+    Write-Host "Error: Could not find the asset '$assetName' in the latest release."
 }
-
-# # Example Usage:
-# if (Test-RestartPending) {
-#     Write-Output "A restart is pending."
-# } else {
-#     Write-Output "No restart is required."
-# }
