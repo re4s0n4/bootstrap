@@ -32,9 +32,9 @@ function Test-RestartPending {
     return $restartPending
 }
 
-# Example Usage:
-if (Test-RestartPending) {
-    Write-Output "A restart is pending."
-} else {
-    Write-Output "No restart is required."
-}
+# # Example Usage:
+# if (Test-RestartPending) {
+#     Write-Output "A restart is pending."
+# } else {
+#     Write-Output "No restart is required."
+# }
