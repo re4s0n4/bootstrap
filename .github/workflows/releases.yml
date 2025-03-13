@@ -1,63 +1,35 @@
-name: Create Release on Push to Main
+name: Create Release
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the action when pushing to the main branch
 
 jobs:
-  release:
+  create-release:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all tags
+        uses: actions/checkout@v3
 
-      - name: Get latest tag
-        id: get-latest-tag
-        run: |
-          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
-          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
-
-      - name: Determine next version
-        id: versioning
-        run: |
-          LATEST_TAG=${{ env.LATEST_TAG }}
-          VERSION=${LATEST_TAG#v}  # Remove 'v' prefix
-          if [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="v$MAJOR.$MINOR.$PATCH"
-          else
-            NEW_VERSION="v1.0.1"
-          fi
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-      - name: Create new tag
-        run: |
-          git tag ${{ env.NEW_VERSION }}
-          git push origin ${{ env.NEW_VERSION }}
-
-      - name: Create GitHub Release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ env.NEW_VERSION }}
-          generateReleaseNotes: true
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      # - name: List files found
-      #   run: |
-      #     echo "Listing all files found in the repository:"
-      #     find . -type f
-
-
-      - name: Upload unarchived files to GitHub Release
+      - name: Create release
+        id: release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.NEW_VERSION }}
           files: |
-            tools.ps1
-            findlatest.ps1
+            tools.ps1  # Include your file here (adjust this if you have more files)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update 'latest' release (if exists)
+        run: |
+          # Check if a release named 'latest' exists, and if so, delete it
+          latest_release=$(gh release list --repo re4s0n4/bootstrap | grep "latest" | awk '{print $1}')
+          if [ ! -z "$latest_release" ]; then
+            gh release delete "$latest_release" --repo re4s0n4/bootstrap --yes
+          fi
+          # Create a new release named 'latest'
+          gh release create latest tools.ps1 --repo re4s0n4/bootstrap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
