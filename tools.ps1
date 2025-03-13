@@ -5,11 +5,42 @@ $assets = "/sources"
 $assetName = "tools.ps1"
 
 # Fetch the latest release information from the GitHub API
-$githubApiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/latest"
-$response = Invoke-RestMethod -Uri $githubApiUrl -Headers @{ "User-Agent" = "PowerShell" }
+# $githubApiUrl = "https://api.github.com/repos/$repoOwner/$repoName/releases/latest"
+# $response = Invoke-RestMethod -Uri $githubApiUrl -Headers @{ "User-Agent" = "PowerShell" }
 
-# Find the asset download URL for tools.ps1
-$downloadUrl = $response.assets | Where-Object { $_.name -eq $assetName } | Select-Object -ExpandProperty browser_download_url
+# Send a GET request to the GitHub API to fetch the latest release details
+$repoContentsUrl = "https://api.github.com/repos/$repoOwner/$repoName/contents/sources"
+
+# Fetch the contents of the 'sources' directory using the GitHub API
+$sourceFiles = Invoke-RestMethod -Uri $repoContentsUrl -Headers @{ "User-Agent" = "PowerShell" }
+
+# Initialize an array to store file data
+$fileArray = @()
+
+
+# Loop through each file in the 'sources' folder
+foreach ($file in $sourceFiles) {
+    # Create a file object with the name and the corresponding download URL
+    $fileObject = [PSCustomObject]@{
+        FileName     = $file.name
+        DownloadURL  = "https://github.com/$repoOwner/$repoName/releases/download/latest/$($file.name)"
+    }
+
+    # Add the file object to the array
+    $fileArray += $fileObject
+}
+
+# Output the array with file names and download URLs
+$fileArray
+
+
+
+
+
+
+
+
+
 
 # Check if the asset URL is found
 if ($downloadUrl) {
