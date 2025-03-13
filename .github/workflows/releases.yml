@@ -1,9 +1,9 @@
-name: Create Release
+name: Create or Update Latest Release
 
 on:
   push:
     branches:
-      - main  # Trigger the action when pushing to the main branch
+      - main  # Trigger on push to main branch
 
 jobs:
   create-release:
@@ -13,23 +13,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create release
-        id: release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: |
-            tools.ps1  # Include your file here (adjust this if you have more files)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Update 'latest' release (if exists)
+      - name: Create or Update 'latest' release
         run: |
-          # Check if a release named 'latest' exists, and if so, delete it
+          # Check if the 'latest' release already exists
           latest_release=$(gh release list --repo re4s0n4/bootstrap | grep "latest" | awk '{print $1}')
-          if [ ! -z "$latest_release" ]; then
+          
+          if [ -z "$latest_release" ]; then
+            echo "Creating a new 'latest' release."
+            # If 'latest' doesn't exist, create it with the tools.ps1 file
+            gh release create latest tools.ps1 --repo re4s0n4/bootstrap
+          else
+            echo "Updating the 'latest' release."
+            # If 'latest' exists, delete the old one and create a new one with the same name
             gh release delete "$latest_release" --repo re4s0n4/bootstrap --yes
+            gh release create latest tools.ps1 --repo re4s0n4/bootstrap
           fi
-          # Create a new release named 'latest'
-          gh release create latest tools.ps1 --repo re4s0n4/bootstrap
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
