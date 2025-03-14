@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Place contents of ps1 files in /sources to mytools.ps1
+      - name: Create tools.ps1
+        run: cat sources/*.ps1 > tools.ps1
+
       - name: Create or Update 'latest' release
         run: |
           # Check if the 'latest' release already exists
