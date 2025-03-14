@@ -8,9 +8,7 @@ function Test-Port {
         [Parameter(Mandatory = $false)]
         [int[]]$Ports = @(80, 443),
         [Parameter(Mandatory = $false)]
-        [int]$Timeout = 500,
-        [Parmeter(Mandatory = $false)]
-        [int] $threads = 10
+        [int]$Timeout = 500
     )
 
     begin {
