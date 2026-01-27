@@ -1,4 +1,4 @@
-Reset-RDPCertificate {
+function Reset-RDPCertificate {
 
     <#
     .SYNOPSIS
